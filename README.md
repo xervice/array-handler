@@ -1,6 +1,9 @@
 ArrayHandler
 =====================
 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/xervice/array-handler/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/xervice/array-handler/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/xervice/array-handler/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/xervice/array-handler/?branch=master)
+
 Helper module to run a handler based on an configuration array for an array. Can be used to write array-hydrator, validator and mapper.
 
 Installation
