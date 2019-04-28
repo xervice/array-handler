@@ -82,7 +82,53 @@ $arrayMapperFacade->handleArray(
 The config array is an array which can contain a simple value or an array. Inside of an array it also can be a simple value or an array or a callable function. Based on that three types on of the method in your FieldMapper will be called.
 For the FieldName you can use a direct way with the fieldname for single dimensional arrays, or the keychain seperated by a point. Also you can configure all items inside of an array by using a wildcard .*.
 
+***Example based on the field handler above***
 ```php
+$data = [
+    'keyOne' => 'valueOne',
+    'keyTwo' => 'valueTwo',
+    'keyThree' => 'valueThree',
+    'keyFour' => 'valueFour',
+    'keyFive' => 'valueFive',
+    'keySix' => [
+        'isNested' => [
+            'foo' => 'bar'
+        ],
+        'multi' => 'array'
+    ]
+];
 
+$config = [
+    'keyOne',
+    'keyFour',
+    [
+        'keyFive',
+        'keyTwo' => function ($value) {
+            return $value . 'DONE';
+        },
+        'keyThree' => [
+            'testvalue' => 'TEST'
+        ]
+    ],
+    [
+        'keySix.isNested' => function ($value) {
+            return 'multiTest';
+        },
+        'keySix.*' => function ($value) {
+            return $value . 'NESTED';
+        }
+    ]
+];
 
+$result = [
+    'keyOne' => 'keyOne',
+    'keyTwo' => 'valueTwoDONE',
+    'keyThree' => 'TEST',
+    'keyFour' => 'keyFour',
+    'keyFive' => 'keyFive',
+    'keySix' => [
+        'multi' => 'arrayNESTED',
+        'isNested' => 'multiTestNESTED'
+    ]
+];
 ```
