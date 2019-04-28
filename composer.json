@@ -1,0 +1,32 @@
+{
+  "name"             : "xervice/array-handler",
+  "license"          : "MIT",
+  "authors"          : [
+    {
+      "name" : "Mike Bertram",
+      "email": "contact@mibexx.de"
+    }
+  ],
+  "require-dev": {
+    "codeception/codeception": "*",
+    "symfony/var-dumper": "*",
+    "phpstan/phpstan": "*"
+  },
+  "require": {
+    "php": ">=7.1.0",
+    "xervice/core": "^4.0.0"
+  },
+  "autoload": {
+    "psr-0": {
+      "Xervice\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "XerviceTest\\": "tests/XerviceTest/"
+    }
+  },
+  "scripts": {
+    "phpstan": "vendor/bin/phpstan analyse src --level=7"
+  }
+}

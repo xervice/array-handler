@@ -1,0 +1,4 @@
+actor: XerviceTestTester
+modules:
+    enabled:
+        - \XerviceTest\Helper\XerviceTest
