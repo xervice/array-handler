@@ -1,5 +1,6 @@
 <?php namespace XerviceTest\ArrayHandler\Business;
 
+use function foo\func;
 use XerviceTest\ArrayHandler\Business\Helper\TestFieldHandler;
 
 class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
@@ -24,7 +25,13 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
             'keyTwo' => 'valueTwo',
             'keyThree' => 'valueThree',
             'keyFour' => 'valueFour',
-            'keyFive' => 'valueFive'
+            'keyFive' => 'valueFive',
+            'keySix' => [
+                'isNested' => [
+                    'foo' => 'bar'
+                ],
+                'multi' => 'array'
+            ]
         ];
 
         $config = [
@@ -38,6 +45,14 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                 'keyThree' => [
                     'testvalue' => 'TEST'
                 ]
+            ],
+            [
+                'keySix.isNested' => function ($value) {
+                    return 'multiTest';
+                },
+                'keySix.*' => function ($value) {
+                    return $value . 'NESTED';
+                }
             ]
         ];
 
@@ -55,7 +70,11 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                 'keyTwo' => 'valueTwoDONE',
                 'keyThree' => 'TEST',
                 'keyFour' => 'keyFour',
-                'keyFive' => 'keyFive'
+                'keyFive' => 'keyFive',
+                'keySix' => [
+                    'multi' => 'arrayNESTED',
+                    'isNested' => 'multiTestNESTED'
+                ]
             ],
             $result
         );

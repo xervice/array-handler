@@ -111,9 +111,10 @@ class ArrayHandler implements ArrayHandlerInterface
     protected function validateArrayKey(array $data, string $key, $fieldConfig): array
     {
         $keychain = explode('.', $key);
+        $lastKey = $this->getLastArrayKey($keychain);
 
         $subdata = $this->getElementWithKey($data, $keychain);
-        $subdata = $this->validateField($subdata, $this->getLastArrayKey($keychain), $fieldConfig);
+        $subdata = $this->validateField($subdata, $keychain[$lastKey], $fieldConfig);
 
         return $this->setElementWithKey($data, $keychain, $subdata);
     }
@@ -151,7 +152,7 @@ class ArrayHandler implements ArrayHandlerInterface
         }
 
         $key = array_shift($keychain);
-        $data[$key] = $this->getElementWithKey($data[$key], $keychain);
+        $data[$key] = $this->setElementWithKey($data[$key], $keychain, $value);
 
         return $data;
     }
