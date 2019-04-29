@@ -46,6 +46,26 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                     [
                         'data' => 'test'
                     ]
+                ],
+                'keyEight' => [
+                    'eightsElement' => 'string',
+                    'nesting' => [
+                        [
+                            'foo' => 'bar'
+                        ],
+                        [
+                            'foo' => 'bar'
+                        ],
+                        [
+                            'foo' => 'bar'
+                        ],
+                        [
+                            'foo' => 'bar'
+                        ],
+                        [
+                            'foo' => 'bar'
+                        ]
+                    ]
                 ]
             ]
         ];
@@ -75,6 +95,11 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                     'keySeven.*' => [
                         'testvalue' => [
                             'data' => 'tested!'
+                        ]
+                    ],
+                    'keyEight.nesting.*' => [
+                        'testvalue' => [
+                            'foo' => 'bartested'
                         ]
                     ]
                 ]
@@ -113,6 +138,26 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                         ],
                         [
                             'data' => 'tested!'
+                        ]
+                    ],
+                    'keyEight' => [
+                        'eightsElement' => 'string',
+                        'nesting' => [
+                            [
+                                'foo' => 'bartested'
+                            ],
+                            [
+                                'foo' => 'bartested'
+                            ],
+                            [
+                                'foo' => 'bartested'
+                            ],
+                            [
+                                'foo' => 'bartested'
+                            ],
+                            [
+                                'foo' => 'bartested'
+                            ]
                         ]
                     ]
                 ]
