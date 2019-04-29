@@ -133,10 +133,11 @@ class ArrayHandler implements ArrayHandlerInterface
     protected function validateAllArrayFields(array $data, string $key, $fieldConfig): array
     {
         $keychain = explode('.', $key);
+        $lastKey = $this->getLastArrayKey($keychain);
 
         $subdata = $this->getElementWithKey($data, $keychain);
         foreach ($subdata as $childkey => $childdata) {
-            $subdata = $this->validateField($subdata, $childkey, $fieldConfig);
+            $subdata = $this->validateField($subdata, (string) $childkey, $fieldConfig);
         }
 
         return $this->setElementWithKey($data, $keychain, $subdata);

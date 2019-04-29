@@ -32,6 +32,20 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                         'foo' => 'bar'
                     ],
                     'multi' => 'array'
+                ],
+                'keySeven' => [
+                    [
+                        'data' => 'test'
+                    ],
+                    [
+                        'data' => 'test'
+                    ],
+                    [
+                        'data' => 'test'
+                    ],
+                    [
+                        'data' => 'test'
+                    ]
                 ]
             ]
         ];
@@ -56,6 +70,13 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                     'keySix.*' => function ($value) {
                         return $value . 'NESTED';
                     }
+                ],
+                [
+                    'keySeven.*' => [
+                        'testvalue' => [
+                            'data' => 'tested!'
+                        ]
+                    ]
                 ]
             ]
         ];
@@ -79,6 +100,20 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                     'keySix' => [
                         'multi' => 'arrayNESTED',
                         'isNested' => 'multiTestNESTED'
+                    ],
+                    'keySeven' => [
+                        [
+                            'data' => 'tested!'
+                        ],
+                        [
+                            'data' => 'tested!'
+                        ],
+                        [
+                            'data' => 'tested!'
+                        ],
+                        [
+                            'data' => 'tested!'
+                        ]
                     ]
                 ]
             ],
