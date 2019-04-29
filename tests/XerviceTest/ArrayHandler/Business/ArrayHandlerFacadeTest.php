@@ -21,38 +21,42 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
     {
 
         $sample = [
-            'keyOne' => 'valueOne',
-            'keyTwo' => 'valueTwo',
-            'keyThree' => 'valueThree',
-            'keyFour' => 'valueFour',
-            'keyFive' => 'valueFive',
-            'keySix' => [
-                'isNested' => [
-                    'foo' => 'bar'
-                ],
-                'multi' => 'array'
+            [
+                'keyOne' => 'valueOne',
+                'keyTwo' => 'valueTwo',
+                'keyThree' => 'valueThree',
+                'keyFour' => 'valueFour',
+                'keyFive' => 'valueFive',
+                'keySix' => [
+                    'isNested' => [
+                        'foo' => 'bar'
+                    ],
+                    'multi' => 'array'
+                ]
             ]
         ];
 
         $config = [
-            'keyOne',
-            'keyFour',
-            [
-                'keyFive',
-                'keyTwo' => function ($value) {
-                    return $value . 'DONE';
-                },
-                'keyThree' => [
-                    'testvalue' => 'TEST'
+            '*' => [
+                'keyOne',
+                'keyFour',
+                [
+                    'keyFive',
+                    'keyTwo' => function ($value) {
+                        return $value . 'DONE';
+                    },
+                    'keyThree' => [
+                        'testvalue' => 'TEST'
+                    ]
+                ],
+                [
+                    'keySix.isNested' => function ($value) {
+                        return 'multiTest';
+                    },
+                    'keySix.*' => function ($value) {
+                        return $value . 'NESTED';
+                    }
                 ]
-            ],
-            [
-                'keySix.isNested' => function ($value) {
-                    return 'multiTest';
-                },
-                'keySix.*' => function ($value) {
-                    return $value . 'NESTED';
-                }
             ]
         ];
 
@@ -66,14 +70,16 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
 
         $this->assertEquals(
             [
-                'keyOne' => 'keyOne',
-                'keyTwo' => 'valueTwoDONE',
-                'keyThree' => 'TEST',
-                'keyFour' => 'keyFour',
-                'keyFive' => 'keyFive',
-                'keySix' => [
-                    'multi' => 'arrayNESTED',
-                    'isNested' => 'multiTestNESTED'
+                [
+                    'keyOne' => 'keyOne',
+                    'keyTwo' => 'valueTwoDONE',
+                    'keyThree' => 'TEST',
+                    'keyFour' => 'keyFour',
+                    'keyFive' => 'keyFive',
+                    'keySix' => [
+                        'multi' => 'arrayNESTED',
+                        'isNested' => 'multiTestNESTED'
+                    ]
                 ]
             ],
             $result

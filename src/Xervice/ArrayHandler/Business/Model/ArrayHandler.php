@@ -31,9 +31,13 @@ class ArrayHandler implements ArrayHandlerInterface
      */
     public function handleArray(array $payload, array $config): array
     {
-        foreach ($config as $configItem) {
+        foreach ($config as $key => $configItem) {
             if (is_string($configItem)) {
                 $payload = $this->validateField($payload, $configItem, $configItem);
+            } elseif ($key === '*') {
+                foreach ($payload as $dataKey => $subdata) {
+                    $payload[$dataKey] = $this->handleArray($subdata, $configItem);
+                }
             } else {
                 $payload = $this->validateNested($payload, $configItem);
             }
