@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Xervice\ArrayHandler\Business\Model;
 
 
+use Xervice\ArrayHandler\Business\Model\ArrayLocator\ArrayLocatorInterface;
 use Xervice\ArrayHandler\Dependency\FieldHandlerPluginInterface;
 
 class ArrayHandler implements ArrayHandlerInterface
@@ -14,13 +15,22 @@ class ArrayHandler implements ArrayHandlerInterface
     private $fieldHandler;
 
     /**
+     * @var \Xervice\ArrayHandler\Business\Model\ArrayLocator\ArrayLocatorInterface
+     */
+    private $arrayLocator;
+
+    /**
      * ArrayHandler constructor.
      *
      * @param \Xervice\ArrayHandler\Dependency\FieldHandlerPluginInterface $fieldHandler
+     * @param \Xervice\ArrayHandler\Business\Model\ArrayLocator\ArrayLocatorInterface $arrayLocator
      */
-    public function __construct(FieldHandlerPluginInterface $fieldHandler)
-    {
+    public function __construct(
+        FieldHandlerPluginInterface $fieldHandler,
+        ArrayLocatorInterface $arrayLocator
+    ) {
         $this->fieldHandler = $fieldHandler;
+        $this->arrayLocator = $arrayLocator;
     }
 
     /**
@@ -31,6 +41,8 @@ class ArrayHandler implements ArrayHandlerInterface
      */
     public function handleArray(array $payload, array $config): array
     {
+        $this->arrayLocator->init($payload);
+
         foreach ($config as $key => $configItem) {
             if (is_string($configItem)) {
                 $payload = $this->validateField($payload, $configItem, $configItem);
@@ -41,6 +53,21 @@ class ArrayHandler implements ArrayHandlerInterface
             } else {
                 $payload = $this->validateNested($payload, $configItem);
             }
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param array $payload
+     * @param array $config
+     *
+     * @return array
+     */
+    protected function validateNested(array $payload, array $config): array
+    {
+        foreach ($config as $configKeys => $configValue) {
+            $keys = $this->arrayLocator->getKeysByPath($configKeys);
         }
 
         return $payload;
@@ -64,131 +91,5 @@ class ArrayHandler implements ArrayHandlerInterface
         }
 
         return $data;
-    }
-
-    /**
-     * @param array $data
-     * @param array $configs
-     *
-     * @return array
-     */
-    protected function validateNested(array $data, array $configs): array
-    {
-        foreach ($configs as $key => $fieldConfig) {
-            $data = $this->validateByType($data, $key, $fieldConfig);
-        }
-
-        return $data;
-    }
-
-    /**
-     * @param array $data
-     * @param mixed $key
-     * @param mixed $fieldConfig
-     *
-     * @return array
-     */
-    protected function validateByType(array $data, $key, $fieldConfig): array
-    {
-        if (is_string($fieldConfig)) {
-            $key = $fieldConfig;
-        }
-
-        if (strpos($key, '.*') !== false) {
-            $data = $this->validateAllArrayFields($data, $key, $fieldConfig);
-        } elseif (strpos($key, '.') !== false) {
-            $data = $this->validateArrayKey($data, $key, $fieldConfig);
-        } else {
-            $data = $this->validateField($data, $key, $fieldConfig);
-        }
-
-        return $data;
-    }
-
-    /**
-     * @param array $data
-     * @param string $key
-     * @param mixed $fieldConfig
-     *
-     * @return array
-     */
-    protected function validateArrayKey(array $data, string $key, $fieldConfig): array
-    {
-        $keychain = explode('.', $key);
-        $lastKey = $this->getLastArrayKey($keychain);
-
-        $subdata = $this->getElementWithKey($data, $keychain);
-        $subdata = $this->validateField($subdata, $keychain[$lastKey], $fieldConfig);
-
-        return $this->setElementWithKey($data, $keychain, $subdata);
-    }
-
-    /**
-     * @param array $data
-     * @param string $key
-     * @param mixed $fieldConfig
-     *
-     * @return array
-     */
-    protected function validateAllArrayFields(array $data, string $key, $fieldConfig): array
-    {
-        $keychain = explode('.', $key);
-        $lastKey = $this->getLastArrayKey($keychain);
-
-        $subdata = $this->getElementWithKey($data, $keychain);
-        foreach ($subdata as $childkey => $childdata) {
-            $subdata = $this->validateField($subdata, (string) $childkey, $fieldConfig);
-        }
-
-        return $this->setElementWithKey($data, $keychain, $subdata);
-    }
-
-    /**
-     * @param array $data
-     * @param array $keychain
-     * @param $value
-     *
-     * @return array
-     */
-    private function setElementWithKey(array $data, array $keychain, $value): array
-    {
-        if (count($keychain) === 1) {
-            return $value;
-        }
-
-        $key = array_shift($keychain);
-        $data[$key] = $this->setElementWithKey($data[$key], $keychain, $value);
-
-        return $data;
-    }
-
-    /**
-     * @param array $data
-     * @param array $keychain
-     *
-     * @return mixed
-     */
-    private function getElementWithKey(array $data, array $keychain)
-    {
-        if (count($keychain) === 1) {
-            return $data;
-        }
-
-        $key = array_shift($keychain);
-        return $this->getElementWithKey($data[$key], $keychain);
-    }
-
-    /**
-     * @param array $array
-     *
-     * @return mixed
-     */
-    private function getLastArrayKey(array $array)
-    {
-        if (!function_exists("array_key_last")) {
-            return array_keys($array)[count($array) - 1];
-        }
-
-        return array_key_last($array);
     }
 }

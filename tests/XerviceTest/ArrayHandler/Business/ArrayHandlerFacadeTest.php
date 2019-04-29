@@ -51,19 +51,49 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                     'eightsElement' => 'string',
                     'nesting' => [
                         [
-                            'foo' => 'bar'
+                            'foo' => [
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar']
+                            ]
                         ],
                         [
-                            'foo' => 'bar'
+                            'foo' => [
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar']
+                            ]
                         ],
                         [
-                            'foo' => 'bar'
+                            'foo' => [
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar']
+                            ]
                         ],
                         [
-                            'foo' => 'bar'
+                            'foo' => [
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar']
+                            ]
                         ],
                         [
-                            'foo' => 'bar'
+                            'foo' => [
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar']
+                            ]
                         ]
                     ]
                 ]
@@ -93,13 +123,19 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                 ],
                 [
                     'keySeven.*' => [
-                        'testvalue' => [
-                            'data' => 'tested!'
+                        [
+                            'testvalue' => [
+                                'data' => 'tested!'
+                            ]
                         ]
                     ],
                     'keyEight.nesting.*' => [
-                        'testvalue' => [
-                            'foo' => 'bartested'
+                        'foo.*' => [
+                            [
+                                'testvalue' => [
+                                    'subfoo' => 'bartested'
+                                ]
+                            ]
                         ]
                     ]
                 ]
@@ -113,6 +149,9 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
             $sample,
             $config
         );
+
+        dump($result[0]['keyEight']);
+        exit;
 
         $this->assertEquals(
             [
@@ -144,19 +183,49 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                         'eightsElement' => 'string',
                         'nesting' => [
                             [
-                                'foo' => 'bartested'
+                                'foo' => [
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested']
+                                ]
                             ],
                             [
-                                'foo' => 'bartested'
+                                'foo' => [
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested']
+                                ]
                             ],
                             [
-                                'foo' => 'bartested'
+                                'foo' => [
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested']
+                                ]
                             ],
                             [
-                                'foo' => 'bartested'
+                                'foo' => [
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested']
+                                ]
                             ],
                             [
-                                'foo' => 'bartested'
+                                'foo' => [
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested'],
+                                    ['subfoo' => 'bartested']
+                                ]
                             ]
                         ]
                     ]
