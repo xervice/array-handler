@@ -22,7 +22,7 @@ class ArrayLocator implements ArrayLocatorInterface
     public function __construct()
     {
         $this->array = [];
-        $this->fieldMap = [];
+        $this->fieldMap = null;
     }
 
 
@@ -34,7 +34,7 @@ class ArrayLocator implements ArrayLocatorInterface
     public function init(array $array)
     {
         $this->array = $array;
-        $this->fieldMap = [];
+        $this->fieldMap = null;
     }
 
     /**
@@ -48,7 +48,9 @@ class ArrayLocator implements ArrayLocatorInterface
             $this->buildFieldMap();
         }
 
-        return $this->getAllKeys($this->fieldMap, $path);
+        return array_values(
+            $this->getAllKeys($this->fieldMap, $path)
+        );
     }
 
     /**
@@ -59,7 +61,7 @@ class ArrayLocator implements ArrayLocatorInterface
      */
     protected function getAllKeys($array, $path): array
     {
-        $search = str_replace('\*', '.*?', preg_quote($path, '/'));
+        $search = str_replace('*', '([^\.]*)', $path);
         return preg_grep('/^' . $search . '$/i', array_keys($array));
     }
 
@@ -78,11 +80,12 @@ class ArrayLocator implements ArrayLocatorInterface
     protected function getAllFields(array $array, string $path, array $fieldMap): array
     {
         foreach ($array as $key => $item) {
+            $keypath = (string) substr($path . '.' . $key, 1);
             if (is_array($item)) {
+                $fieldMap[$keypath] = $keypath;
                 $fieldMap = $this->getAllFields($item, $path . '.' . $key, $fieldMap);
             }
             else {
-                $keypath = (string) substr($path . '.' . $key, 1);
                 $fieldMap[$keypath] = $keypath;
             }
         }

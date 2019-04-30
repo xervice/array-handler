@@ -43,11 +43,28 @@ class ArrayLocatorTest extends Unit
             ]
         ];
 
-        $arrayLocator = new ArrayLocator($array);
+        $arrayLocator = new ArrayLocator();
+        $arrayLocator->init($array);
 
         $this->assertEquals(
-            [],
+            [
+                'nestedOne.0.insideTwo.chained1',
+                'nestedOne.0.insideTwo.chained2',
+                'nestedOne.1.insideTwo.chained3',
+                'nestedOne.1.insideTwo.chained4',
+                'nestedOne.2.insideTwo.chained5',
+                'nestedOne.2.insideTwo.chained6'
+            ],
             $arrayLocator->getKeysByPath('nestedOne.*.insideTwo.*')
+        );
+
+        $this->assertEquals(
+            [
+                'nestedOne.0',
+                'nestedOne.1',
+                'nestedOne.2',
+            ],
+            $arrayLocator->getKeysByPath('nestedOne.*')
         );
     }
 }

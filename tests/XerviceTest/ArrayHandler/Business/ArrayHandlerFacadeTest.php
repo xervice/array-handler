@@ -22,16 +22,16 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
 
         $sample = [
             [
-                'keyOne' => 'valueOne',
-                'keyTwo' => 'valueTwo',
+                'keyOne'   => 'valueOne',
+                'keyTwo'   => 'valueTwo',
                 'keyThree' => 'valueThree',
-                'keyFour' => 'valueFour',
-                'keyFive' => 'valueFive',
-                'keySix' => [
+                'keyFour'  => 'valueFour',
+                'keyFive'  => 'valueFive',
+                'keySix'   => [
                     'isNested' => [
                         'foo' => 'bar'
                     ],
-                    'multi' => 'array'
+                    'multi'    => 'array'
                 ],
                 'keySeven' => [
                     [
@@ -49,7 +49,7 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                 ],
                 'keyEight' => [
                     'eightsElement' => 'string',
-                    'nesting' => [
+                    'nesting'       => [
                         [
                             'foo' => [
                                 ['subfoo' => 'bar'],
@@ -106,7 +106,7 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                 'keyFour',
                 [
                     'keyFive',
-                    'keyTwo' => function ($value) {
+                    'keyTwo'   => function ($value) {
                         return $value . 'DONE';
                     },
                     'keyThree' => [
@@ -117,24 +117,22 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                     'keySix.isNested' => function ($value) {
                         return 'multiTest';
                     },
-                    'keySix.*' => function ($value) {
+                    'keySix.*'        => function ($value) {
                         return $value . 'NESTED';
                     }
                 ],
                 [
-                    'keySeven.*' => [
+                    'keySeven.*'               => [
                         [
                             'testvalue' => [
                                 'data' => 'tested!'
                             ]
                         ]
                     ],
-                    'keyEight.nesting.*' => [
-                        'foo.*' => [
-                            [
-                                'testvalue' => [
-                                    'subfoo' => 'bartested'
-                                ]
+                    'keyEight.nesting.*.foo.*' => [
+                        [
+                            'testvalue' => [
+                                'subfoo' => 'bartested'
                             ]
                         ]
                     ]
@@ -148,21 +146,19 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
             $handler,
             $sample,
             $config
-        );
-
-        dump($result[0]['keyEight']);
-        exit;
+        )
+        ;
 
         $this->assertEquals(
             [
                 [
-                    'keyOne' => 'keyOne',
-                    'keyTwo' => 'valueTwoDONE',
+                    'keyOne'   => 'keyOne',
+                    'keyTwo'   => 'valueTwoDONE',
                     'keyThree' => 'TEST',
-                    'keyFour' => 'keyFour',
-                    'keyFive' => 'keyFive',
-                    'keySix' => [
-                        'multi' => 'arrayNESTED',
+                    'keyFour'  => 'keyFour',
+                    'keyFive'  => 'keyFive',
+                    'keySix'   => [
+                        'multi'    => 'arrayNESTED',
                         'isNested' => 'multiTestNESTED'
                     ],
                     'keySeven' => [
@@ -181,7 +177,7 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                     ],
                     'keyEight' => [
                         'eightsElement' => 'string',
-                        'nesting' => [
+                        'nesting'       => [
                             [
                                 'foo' => [
                                     ['subfoo' => 'bartested'],
