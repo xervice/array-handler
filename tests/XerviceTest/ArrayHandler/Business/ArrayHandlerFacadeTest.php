@@ -78,6 +78,48 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
      * @group Business
      * @group Facade
      * @group Integration
+     */
+    public function testHandleString()
+    {
+        $sample = [
+            'testOne' => 'valueOne',
+            'testTwo' => [
+                'valueOne',
+                'valueTwo',
+                [
+                    'valueThree'
+                ]
+            ]
+        ];
+
+        $config = [
+            'testOne',
+            'testTwo' => 'Tested'
+        ];
+
+        $handler = new TestFieldHandler();
+
+        $result = $this->tester->getFacade()->handleArray(
+            $handler,
+            $sample,
+            $config
+        );
+
+        $this->assertEquals(
+            [
+                'testOne' => 'testOne',
+                'testTwo' => 'Tested'
+            ],
+            $result
+        );
+    }
+
+    /**
+     * @group Xervice
+     * @group ArrayHandler
+     * @group Business
+     * @group Facade
+     * @group Integration
      *
      * @skip
      */

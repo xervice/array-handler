@@ -52,7 +52,7 @@ class ArrayHandler implements ArrayHandlerInterface
             if (is_string($key) && is_callable($configItem)) {
                 $payload = $this->handleCallable($payload, $key, $configItem);
             } elseif (is_string($configItem)) {
-                // TODO: ? => string
+                $payload = $this->handleString($payload, $key, $configItem);
             } elseif (is_array($configItem)) {
                 // TODO: ? => array
             } else {
@@ -61,6 +61,26 @@ class ArrayHandler implements ArrayHandlerInterface
         }
 
         return $payload;
+    }
+
+    /**
+     * Cases:
+     * int => 'string',
+     * 'string' => 'string',
+     *
+     * @param array $payload
+     * @param mixed $key
+     * @param string $configItem
+     *
+     * @return array
+     */
+    protected function handleString(array $payload, $key, string $configItem): array
+    {
+        if (is_int($key)) {
+            $key = $configItem;
+        }
+
+        return $this->fieldHandler->handleSimpleConfig($payload, $key, $configItem);
     }
 
     /**
