@@ -31,7 +31,7 @@ class TestFieldHandler implements FieldHandlerPluginInterface
      */
     public function handleNestedConfig(array $data, string $fieldName, array $config): array
     {
-        $data[$fieldName] = $config['testvalue'];
+        $data[$fieldName] = $config['testvalue'] ?? null;
 
         return $data;
     }

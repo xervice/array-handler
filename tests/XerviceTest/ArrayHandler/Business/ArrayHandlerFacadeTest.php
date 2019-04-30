@@ -17,88 +17,74 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
      * @group Facade
      * @group Integration
      */
-    public function testHandleArray()
+    public function testHandleCallable()
     {
-
         $sample = [
-            [
-                'keyOne'   => 'valueOne',
-                'keyTwo'   => 'valueTwo',
-                'keyThree' => 'valueThree',
-                'keyFour'  => 'valueFour',
-                'keyFive'  => 'valueFive',
-                'keySix'   => [
-                    'isNested' => [
-                        'foo' => 'bar'
-                    ],
-                    'multi'    => 'array'
-                ],
-                'keySeven' => [
-                    [
-                        'data' => 'test'
-                    ],
-                    [
-                        'data' => 'test'
-                    ],
-                    [
-                        'data' => 'test'
-                    ],
-                    [
-                        'data' => 'test'
-                    ]
-                ],
-                'keyEight' => [
-                    'eightsElement' => 'string',
-                    'nesting'       => [
-                        [
-                            'foo' => [
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar']
-                            ]
-                        ],
-                        [
-                            'foo' => [
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar']
-                            ]
-                        ],
-                        [
-                            'foo' => [
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar']
-                            ]
-                        ],
-                        [
-                            'foo' => [
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar']
-                            ]
-                        ],
-                        [
-                            'foo' => [
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar'],
-                                ['subfoo' => 'bar']
-                            ]
-                        ]
-                    ]
+            'testOne' => 'valueOne',
+            'testTwo' => [
+                'valueOne',
+                'valueTwo',
+                [
+                    'valueThree'
                 ]
             ]
         ];
+
+        $config = [
+            '*' => function ($value) {
+                if (is_array($value)) {
+                    $value[0] = $value[0] . '1';
+                } else {
+                    return $value . '1';
+                }
+
+                return $value;
+            },
+            'testOne' => function ($value) {
+                return $value . '2';
+            },
+            'testTwo.*' => function ($value) {
+                $value[0] = $value[0] . '3';
+                return $value;
+            }
+        ];
+
+        $handler = new TestFieldHandler();
+
+        $result = $this->tester->getFacade()->handleArray(
+            $handler,
+            $sample,
+            $config
+        );
+
+        $this->assertEquals(
+            [
+                'testOne' => 'valueOne12',
+                'testTwo' => [
+                    'valueOne1',
+                    'valueTwo',
+                    [
+                        'valueThree3'
+                    ]
+                ]
+            ],
+            $result
+        );
+    }
+
+    /**
+     * @group Xervice
+     * @group ArrayHandler
+     * @group Business
+     * @group Facade
+     * @group Integration
+     *
+     * @skip
+     */
+    public function testHandleArray()
+    {
+
+        $sample = $this->getSampleData();
 
         $config = [
             '*' => [
@@ -106,33 +92,43 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                 'keyFour',
                 [
                     'keyFive',
-                    'keyTwo'   => function ($value) {
+                    'keyTwo' => function ($value) {
                         return $value . 'DONE';
                     },
                     'keyThree' => [
-                        'testvalue' => 'TEST'
+                        [
+                            'testvalue' => 'TEST'
+                        ]
                     ]
                 ],
                 [
-                    'keySix.isNested' => function ($value) {
-                        return 'multiTest';
-                    },
-                    'keySix.*'        => function ($value) {
+                    'keySix' => [
+                        'isNested' => function ($value) {
+                            return 'multiTest';
+                        }
+                    ],
+                    'keySix.*' => function ($value) {
                         return $value . 'NESTED';
                     }
                 ],
                 [
-                    'keySeven.*'               => [
-                        [
-                            'testvalue' => [
-                                'data' => 'tested!'
-                            ]
+                    'keySeven.*' => [
+                        'testvalue' => [
+                            'data' => 'tested!'
                         ]
                     ],
-                    'keyEight.nesting.*.foo.*' => [
+                    'keyEight' => [
                         [
-                            'testvalue' => [
-                                'subfoo' => 'bartested'
+                            'nesting.*' => [
+                                'foo.*' => [
+                                    'subfoo' => [
+                                        [
+                                            'testvalue' => [
+                                                'subfoo' => 'bartested'
+                                            ]
+                                        ]
+                                    ]
+                                ]
                             ]
                         ]
                     ]
@@ -146,19 +142,18 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
             $handler,
             $sample,
             $config
-        )
-        ;
+        );
 
         $this->assertEquals(
             [
                 [
-                    'keyOne'   => 'keyOne',
-                    'keyTwo'   => 'valueTwoDONE',
+                    'keyOne' => 'keyOne',
+                    'keyTwo' => 'valueTwoDONE',
                     'keyThree' => 'TEST',
-                    'keyFour'  => 'keyFour',
-                    'keyFive'  => 'keyFive',
-                    'keySix'   => [
-                        'multi'    => 'arrayNESTED',
+                    'keyFour' => 'keyFour',
+                    'keyFive' => 'keyFive',
+                    'keySix' => [
+                        'multi' => 'arrayNESTED',
                         'isNested' => 'multiTestNESTED'
                     ],
                     'keySeven' => [
@@ -177,7 +172,7 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                     ],
                     'keyEight' => [
                         'eightsElement' => 'string',
-                        'nesting'       => [
+                        'nesting' => [
                             [
                                 'foo' => [
                                     ['subfoo' => 'bartested'],
@@ -229,5 +224,92 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
             ],
             $result
         );
+    }
+
+    /**
+     * @return array
+     */
+    private function getSampleData(): array
+    {
+        $sample = [
+            [
+                'keyOne' => 'valueOne',
+                'keyTwo' => 'valueTwo',
+                'keyThree' => 'valueThree',
+                'keyFour' => 'valueFour',
+                'keyFive' => 'valueFive',
+                'keySix' => [
+                    'isNested' => [
+                        'foo' => 'bar'
+                    ],
+                    'multi' => 'array'
+                ],
+                'keySeven' => [
+                    [
+                        'data' => 'test'
+                    ],
+                    [
+                        'data' => 'test'
+                    ],
+                    [
+                        'data' => 'test'
+                    ],
+                    [
+                        'data' => 'test'
+                    ]
+                ],
+                'keyEight' => [
+                    'eightsElement' => 'string',
+                    'nesting' => [
+                        [
+                            'foo' => [
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar']
+                            ]
+                        ],
+                        [
+                            'foo' => [
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar']
+                            ]
+                        ],
+                        [
+                            'foo' => [
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar']
+                            ]
+                        ],
+                        [
+                            'foo' => [
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar']
+                            ]
+                        ],
+                        [
+                            'foo' => [
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar'],
+                                ['subfoo' => 'bar']
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        return $sample;
     }
 }

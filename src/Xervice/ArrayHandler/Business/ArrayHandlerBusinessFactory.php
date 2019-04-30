@@ -24,16 +24,7 @@ class ArrayHandlerBusinessFactory extends AbstractBusinessFactory
     public function createArrayHandler(FieldHandlerPluginInterface $handlerPlugin): ArrayHandlerInterface
     {
         return new ArrayHandler(
-            $handlerPlugin,
-            $this->createArrayLocator()
+            $handlerPlugin
         );
-    }
-
-    /**
-     * @return \Xervice\ArrayHandler\Business\Model\ArrayLocator\ArrayLocatorInterface
-     */
-    public function createArrayLocator(): ArrayLocatorInterface
-    {
-        return new ArrayLocator();
     }
 }
