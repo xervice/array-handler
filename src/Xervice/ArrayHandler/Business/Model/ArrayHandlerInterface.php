@@ -11,5 +11,5 @@ interface ArrayHandlerInterface
      *
      * @return array
      */
-    public function handleArray(array $payload, array $config): array;
+    public function handleConfig(array $payload, array $config): array;
 }

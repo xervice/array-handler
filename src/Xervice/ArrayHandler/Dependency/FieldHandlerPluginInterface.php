@@ -6,30 +6,40 @@ namespace Xervice\ArrayHandler\Dependency;
 
 interface FieldHandlerPluginInterface
 {
+    public const HANDLE_THIS = '___HANDLE_THIS___';
+
     /**
      * @param array $data
-     * @param string $fieldName
+     * @param mixed $fieldName
      * @param string $config
      *
      * @return array
      */
-    public function handleSimpleConfig(array $data, string $fieldName, string $config): array;
+    public function handleSimpleConfig(array $data, $fieldName, string $config): array;
 
     /**
      * @param array $data
-     * @param string $fieldName
+     * @param mixed $fieldName
      * @param array $config
      *
      * @return array
      */
-    public function handleNestedConfig(array $data, string $fieldName, array $config): array;
+    public function handleNestedConfig(array $data, $fieldName, array $config): array;
 
     /**
      * @param array $data
-     * @param string $fieldName
+     * @param array $config
+     *
+     * @return array
+     */
+    public function handleArrayConfig(array $data, array $config): array;
+
+    /**
+     * @param array $data
+     * @param mixed $fieldName
      * @param callable $config
      *
      * @return array
      */
-    public function handleCallableConfig(array $data, string $fieldName, callable $config): array;
+    public function handleCallableConfig(array $data, $fieldName, callable $config): array;
 }

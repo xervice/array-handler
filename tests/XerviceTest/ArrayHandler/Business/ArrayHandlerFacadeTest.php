@@ -1,6 +1,7 @@
 <?php namespace XerviceTest\ArrayHandler\Business;
 
 use function foo\func;
+use Xervice\ArrayHandler\Dependency\FieldHandlerPluginInterface;
 use XerviceTest\ArrayHandler\Business\Helper\TestFieldHandler;
 
 class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
@@ -55,7 +56,8 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
             $handler,
             $sample,
             $config
-        );
+        )
+        ;
 
         $this->assertEquals(
             [
@@ -103,7 +105,8 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
             $handler,
             $sample,
             $config
-        );
+        )
+        ;
 
         $this->assertEquals(
             [
@@ -120,10 +123,8 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
      * @group Business
      * @group Facade
      * @group Integration
-     *
-     * @skip
      */
-    public function testHandleArray()
+    public function testHandleAll()
     {
 
         $sample = $this->getSampleData();
@@ -138,9 +139,7 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                         return $value . 'DONE';
                     },
                     'keyThree' => [
-                        [
-                            'testvalue' => 'TEST'
-                        ]
+                        'testvalue' => 'TEST'
                     ]
                 ],
                 [
@@ -155,16 +154,18 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
                 ],
                 [
                     'keySeven.*' => [
-                        'testvalue' => [
-                            'data' => 'tested!'
+                        FieldHandlerPluginInterface::HANDLE_THIS => [
+                            'testvalue' => [
+                                'data' => 'tested!'
+                            ]
                         ]
                     ],
                     'keyEight' => [
                         [
                             'nesting.*' => [
-                                'foo.*' => [
-                                    'subfoo' => [
-                                        [
+                                [
+                                    'foo.*' => [
+                                        FieldHandlerPluginInterface::HANDLE_THIS => [
                                             'testvalue' => [
                                                 'subfoo' => 'bartested'
                                             ]
@@ -184,7 +185,8 @@ class ArrayHandlerFacadeTest extends \Codeception\Test\Unit
             $handler,
             $sample,
             $config
-        );
+        )
+        ;
 
         $this->assertEquals(
             [

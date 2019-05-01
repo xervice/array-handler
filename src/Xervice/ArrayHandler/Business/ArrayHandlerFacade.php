@@ -23,6 +23,6 @@ class ArrayHandlerFacade extends AbstractFacade
     {
         return $this->getFactory()
             ->createArrayHandler($handlerPlugin)
-            ->handleArray($payload, $config);
+            ->handleConfig($payload, $config);
     }
 }

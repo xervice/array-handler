@@ -5,7 +5,6 @@ namespace Xervice\ArrayHandler\Business\Model;
 
 
 use Xervice\ArrayHandler\Business\Exception\ArrayHandlerException;
-use Xervice\ArrayHandler\Business\Model\ArrayLocator\ArrayLocatorInterface;
 use Xervice\ArrayHandler\Dependency\FieldHandlerPluginInterface;
 
 class ArrayHandler implements ArrayHandlerInterface
@@ -46,17 +45,74 @@ class ArrayHandler implements ArrayHandlerInterface
      * @return array
      * @throws \Xervice\ArrayHandler\Business\Exception\ArrayHandlerException
      */
-    public function handleArray(array $payload, array $config): array
+    public function handleConfig(array $payload, array $config): array
     {
         foreach ($config as $key => $configItem) {
-            if (is_string($key) && is_callable($configItem)) {
-                $payload = $this->handleCallable($payload, $key, $configItem);
-            } elseif (is_string($configItem)) {
-                $payload = $this->handleString($payload, $key, $configItem);
-            } elseif (is_array($configItem)) {
-                // TODO: ? => array
+            $payload = $this->handleByType($payload, $key, $configItem);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param array $payload
+     * @param mixed $key
+     * @param mixed $config
+     *
+     * @return array
+     * @throws \Xervice\ArrayHandler\Business\Exception\ArrayHandlerException
+     */
+    protected function handleByType(array $payload, $key, $config): array
+    {
+        if (is_string($key) && is_callable($config)) {
+            $payload = $this->handleCallable($payload, $key, $config);
+        } elseif (is_string($config)) {
+            $payload = $this->handleString($payload, $key, $config);
+        } elseif (is_array($config)) {
+            $payload = $this->handleArray($payload, $key, $config);
+        } else {
+            throw new ArrayHandlerException('Config data is invalid.');
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Cases:
+     * '*' => [ [...] ]
+     * '*' => [ ... => [], ...]
+     * 'string' => [ [...] ]
+     * 'string' => [ ... => [], ... ]
+     * 'string.*' => [ [...] ]
+     * 'string.*' => [ ... => [], ... ]
+     * int => []
+     *
+     * @param array $payload
+     * @param $key
+     * @param array $config
+     *
+     * @return array
+     */
+    protected function handleArray(array $payload, $key, array $config): array
+    {
+        if ($key === '*') {
+            foreach ($payload as $pkey => $pdata) {
+                $payload[$pkey] = $this->handleConfig($payload[$pkey], $config);
+            }
+        } elseif (is_string($key) && strpos($key, '.*') !== false) {
+            $primary = substr($key, 0, strpos($key, '.*'));
+            foreach ($payload[$primary] as $pkey => $pdata) {
+                $payload[$primary][$pkey] = $this->handleConfig($pdata, $config);
+            }
+        } elseif (is_int($key) && is_array($config)) {
+            $payload = $this->handleConfig($payload, $config);
+        } else {
+            if ($key === FieldHandlerPluginInterface::HANDLE_THIS) {
+                $payload = $this->fieldHandler->handleArrayConfig($payload, $config);
+            } elseif (isset($payload[$key]) && is_string($payload[$key])) {
+                $payload = $this->fieldHandler->handleNestedConfig($payload, $key, $config);
             } else {
-                throw new ArrayHandlerException('Config data is invalid.');
+                $payload[$key] = $this->handleConfig($payload[$key], $config);
             }
         }
 
@@ -90,12 +146,12 @@ class ArrayHandler implements ArrayHandlerInterface
      * 'string.*' => callable
      *
      * @param mixed $payload
-     * @param string $key
+     * @param $key
      * @param callable $callable
      *
      * @return array
      */
-    protected function handleCallable($payload, string $key, callable $callable): array
+    protected function handleCallable($payload, $key, callable $callable): array
     {
         if ($key === '*') {
             foreach ($payload as $pkey => $pdata) {
