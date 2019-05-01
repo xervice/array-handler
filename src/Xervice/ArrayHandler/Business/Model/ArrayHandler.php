@@ -202,6 +202,8 @@ class ArrayHandler implements ArrayHandlerInterface
             $payload = $this->fieldHandler->handleArrayConfig($payload, $config);
         } elseif (isset($payload[$key]) && !is_array($payload[$key])) {
             $payload = $this->fieldHandler->handleNestedConfig($payload, $key, $config);
+        } elseif (!isset($payload[$key])) {
+            $payload = $this->fieldHandler->handleNestedConfig($payload, $key, $config);
         } else {
             $payload[$key] = $this->handleConfig($payload[$key], $config);
         }
