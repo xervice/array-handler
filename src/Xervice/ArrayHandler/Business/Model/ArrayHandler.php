@@ -66,7 +66,7 @@ class ArrayHandler implements ArrayHandlerInterface
     {
         if (is_string($key) && is_callable($config)) {
             $payload = $this->handleCallable($payload, $key, $config);
-        } elseif (is_string($config)) {
+        } elseif (!is_array($config) && !is_callable($config)) {
             $payload = $this->handleString($payload, $key, $config);
         } elseif (is_array($config)) {
             $payload = $this->handleArray($payload, $key, $config);
