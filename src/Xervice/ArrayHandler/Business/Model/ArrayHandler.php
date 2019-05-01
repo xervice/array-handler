@@ -88,7 +88,7 @@ class ArrayHandler implements ArrayHandlerInterface
      * int => []
      *
      * @param array $payload
-     * @param $key
+     * @param mixed $key
      * @param array $config
      *
      * @return array
@@ -96,24 +96,13 @@ class ArrayHandler implements ArrayHandlerInterface
     protected function handleArray(array $payload, $key, array $config): array
     {
         if ($key === '*') {
-            foreach ($payload as $pkey => $pdata) {
-                $payload[$pkey] = $this->handleConfig($payload[$pkey], $config);
-            }
+            $payload = $this->handleArrayWildcard($payload, $config);
         } elseif (is_string($key) && strpos($key, '.*') !== false) {
-            $primary = substr($key, 0, strpos($key, '.*'));
-            foreach ($payload[$primary] as $pkey => $pdata) {
-                $payload[$primary][$pkey] = $this->handleConfig($pdata, $config);
-            }
+            $payload = $this->handleArraySubwildcard($payload, $key, $config);
         } elseif (is_int($key) && is_array($config)) {
             $payload = $this->handleConfig($payload, $config);
         } else {
-            if ($key === FieldHandlerPluginInterface::HANDLE_THIS) {
-                $payload = $this->fieldHandler->handleArrayConfig($payload, $config);
-            } elseif (isset($payload[$key]) && is_string($payload[$key])) {
-                $payload = $this->fieldHandler->handleNestedConfig($payload, $key, $config);
-            } else {
-                $payload[$key] = $this->handleConfig($payload[$key], $config);
-            }
+            $payload = $this->handleArrayConfig($payload, $key, $config);
         }
 
         return $payload;
@@ -166,4 +155,56 @@ class ArrayHandler implements ArrayHandlerInterface
 
         return $payload;
     }
+
+    /**
+     * @param array $payload
+     * @param array $config
+     *
+     * @return array
+     * @throws \Xervice\ArrayHandler\Business\Exception\ArrayHandlerException
+     */
+    protected function handleArrayWildcard(array $payload, array $config): array
+    {
+        foreach ($payload as $pkey => $pdata) {
+            $payload[$pkey] = $this->handleConfig($payload[$pkey], $config);
+        }
+        return $payload;
+}
+
+    /**
+     * @param array $payload
+     * @param $key
+     * @param array $config
+     *
+     * @return array
+     * @throws \Xervice\ArrayHandler\Business\Exception\ArrayHandlerException
+     */
+    protected function handleArraySubwildcard(array $payload, $key, array $config): array
+    {
+        $primary = substr($key, 0, strpos($key, '.*'));
+        foreach ($payload[$primary] as $pkey => $pdata) {
+            $payload[$primary][$pkey] = $this->handleConfig($pdata, $config);
+        }
+        return $payload;
+}
+
+    /**
+     * @param array $payload
+     * @param $key
+     * @param array $config
+     *
+     * @return array
+     * @throws \Xervice\ArrayHandler\Business\Exception\ArrayHandlerException
+     */
+    protected function handleArrayConfig(array $payload, $key, array $config): array
+    {
+        if ($key === FieldHandlerPluginInterface::HANDLE_THIS) {
+            $payload = $this->fieldHandler->handleArrayConfig($payload, $config);
+        } elseif (isset($payload[$key]) && is_string($payload[$key])) {
+            $payload = $this->fieldHandler->handleNestedConfig($payload, $key, $config);
+        } else {
+            $payload[$key] = $this->handleConfig($payload[$key], $config);
+        }
+        return $payload;
+}
 }
