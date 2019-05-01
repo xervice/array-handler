@@ -67,7 +67,7 @@ class ArrayHandler implements ArrayHandlerInterface
         if (is_string($key) && is_callable($config)) {
             $payload = $this->handleCallable($payload, $key, $config);
         } elseif (!is_array($config) && !is_callable($config)) {
-            $payload = $this->handleString($payload, $key, $config);
+            $payload = $this->handleSimple($payload, $key, $config);
         } elseif (is_array($config)) {
             $payload = $this->handleArray($payload, $key, $config);
         } else {
@@ -115,11 +115,11 @@ class ArrayHandler implements ArrayHandlerInterface
      *
      * @param array $payload
      * @param mixed $key
-     * @param string $configItem
+     * @param mixed $configItem
      *
      * @return array
      */
-    protected function handleString(array $payload, $key, string $configItem): array
+    protected function handleSimple(array $payload, $key, $configItem): array
     {
         if (is_int($key)) {
             $key = $configItem;

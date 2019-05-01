@@ -11,11 +11,11 @@ class TestFieldHandler implements FieldHandlerPluginInterface
     /**
      * @param array $data
      * @param mixed $fieldName
-     * @param string $config
+     * @param mixed $config
      *
      * @return array
      */
-    public function handleSimpleConfig(array $data, $fieldName, string $config): array
+    public function handleSimpleConfig(array $data, $fieldName, $config): array
     {
         $data[$fieldName] = $config;
 
