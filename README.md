@@ -29,12 +29,12 @@ class TestFieldHandler implements FieldHandlerPluginInterface
 {
     /**
      * @param array $data
-     * @param string $fieldName
+     * @param mixed $fieldName
      * @param string $config
      *
      * @return array
      */
-    public function handleSimpleConfig(array $data, string $fieldName, string $config): array
+    public function handleSimpleConfig(array $data, $fieldName, string $config): array
     {
         $data[$fieldName] = $config;
 
@@ -43,26 +43,40 @@ class TestFieldHandler implements FieldHandlerPluginInterface
 
     /**
      * @param array $data
-     * @param string $fieldName
+     * @param mixed $fieldName
      * @param array $config
      *
      * @return array
      */
-    public function handleNestedConfig(array $data, string $fieldName, array $config): array
+    public function handleNestedConfig(array $data, $fieldName, array $config): array
     {
-        $data[$fieldName] = $config['testvalue'];
+        $data[$fieldName] = $config['testvalue'] ?? null;
 
         return $data;
     }
 
     /**
      * @param array $data
-     * @param string $fieldName
+     * @param array $config
+     *
+     * @return array
+     */
+    public function handleArrayConfig(array $data, array $config): array
+    {
+        $data = $config['testvalue'] ?? null;
+
+        return $data;
+    }
+
+
+    /**
+     * @param array $data
+     * @param mixed $fieldName
      * @param callable $config
      *
      * @return array
      */
-    public function handleCallableConfig(array $data, string $fieldName, callable $config): array
+    public function handleCallableConfig(array $data, $fieldName, callable $config): array
     {
         $data[$fieldName] = $config($data[$fieldName]);
 
@@ -88,50 +102,210 @@ For the FieldName you can use a direct way with the fieldname for single dimensi
 ***Example based on the field handler above***
 ```php
 $data = [
-    'keyOne' => 'valueOne',
-    'keyTwo' => 'valueTwo',
-    'keyThree' => 'valueThree',
-    'keyFour' => 'valueFour',
-    'keyFive' => 'valueFive',
-    'keySix' => [
-        'isNested' => [
-            'foo' => 'bar'
+    [
+        'keyOne' => 'valueOne',
+        'keyTwo' => 'valueTwo',
+        'keyThree' => 'valueThree',
+        'keyFour' => 'valueFour',
+        'keyFive' => 'valueFive',
+        'keySix' => [
+            'isNested' => [
+                'foo' => 'bar'
+            ],
+            'multi' => 'array'
         ],
-        'multi' => 'array'
+        'keySeven' => [
+            [
+                'data' => 'test'
+            ],
+            [
+                'data' => 'test'
+            ],
+            [
+                'data' => 'test'
+            ],
+            [
+                'data' => 'test'
+            ]
+        ],
+        'keyEight' => [
+            'eightsElement' => 'string',
+            'nesting' => [
+                [
+                    'foo' => [
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar']
+                    ]
+                ],
+                [
+                    'foo' => [
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar']
+                    ]
+                ],
+                [
+                    'foo' => [
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar']
+                    ]
+                ],
+                [
+                    'foo' => [
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar']
+                    ]
+                ],
+                [
+                    'foo' => [
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar'],
+                        ['subfoo' => 'bar']
+                    ]
+                ]
+            ]
+        ]
     ]
 ];
 
 $config = [
-    'keyOne',
-    'keyFour',
-    [
-        'keyFive',
-        'keyTwo' => function ($value) {
-            return $value . 'DONE';
-        },
-        'keyThree' => [
-            'testvalue' => 'TEST'
-        ]
-    ],
-    [
-        'keySix.isNested' => function ($value) {
-            return 'multiTest';
-        },
-        'keySix.*' => function ($value) {
-            return $value . 'NESTED';
-        }
-    ]
+  '*' => [
+      'keyOne',
+      'keyFour',
+      [
+          'keyFive',
+          'keyTwo' => function ($value) {
+              return $value . 'DONE';
+          },
+          'keyThree' => [
+              'testvalue' => 'TEST'
+          ]
+      ],
+      [
+          'keySix' => [
+              'isNested' => function ($value) {
+                  return 'multiTest';
+              }
+          ],
+          'keySix.*' => function ($value) {
+              return $value . 'NESTED';
+          }
+      ],
+      [
+          'keySeven.*' => [
+              FieldHandlerPluginInterface::HANDLE_THIS => [
+                  'testvalue' => [
+                      'data' => 'tested!'
+                  ]
+              ]
+          ],
+          'keyEight' => [
+              [
+                  'nesting.*' => [
+                      [
+                          'foo.*' => [
+                              FieldHandlerPluginInterface::HANDLE_THIS => [
+                                  'testvalue' => [
+                                      'subfoo' => 'bartested'
+                                  ]
+                              ]
+                          ]
+                      ]
+                  ]
+              ]
+          ]
+      ]
+  ]
 ];
 
 $result = [
-    'keyOne' => 'keyOne',
-    'keyTwo' => 'valueTwoDONE',
-    'keyThree' => 'TEST',
-    'keyFour' => 'keyFour',
-    'keyFive' => 'keyFive',
-    'keySix' => [
-        'multi' => 'arrayNESTED',
-        'isNested' => 'multiTestNESTED'
-    ]
+  [
+      'keyOne' => 'keyOne',
+      'keyTwo' => 'valueTwoDONE',
+      'keyThree' => 'TEST',
+      'keyFour' => 'keyFour',
+      'keyFive' => 'keyFive',
+      'keySix' => [
+          'multi' => 'arrayNESTED',
+          'isNested' => 'multiTestNESTED'
+      ],
+      'keySeven' => [
+          [
+              'data' => 'tested!'
+          ],
+          [
+              'data' => 'tested!'
+          ],
+          [
+              'data' => 'tested!'
+          ],
+          [
+              'data' => 'tested!'
+          ]
+      ],
+      'keyEight' => [
+          'eightsElement' => 'string',
+          'nesting' => [
+              [
+                  'foo' => [
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested']
+                  ]
+              ],
+              [
+                  'foo' => [
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested']
+                  ]
+              ],
+              [
+                  'foo' => [
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested']
+                  ]
+              ],
+              [
+                  'foo' => [
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested']
+                  ]
+              ],
+              [
+                  'foo' => [
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested'],
+                      ['subfoo' => 'bartested']
+                  ]
+              ]
+          ]
+      ]
+  ]
 ];
 ```
